@@ -1,0 +1,29 @@
+# =====================================================================
+# Triple A Store — إعدادات Netlify (موقع Netlify منفصل تماماً عن موقع Triple A Studio)
+# =====================================================================
+[build]
+  publish = "."
+  # سكربت اختياري صغير: إن ضبطت متغيرات بيئة في Netlify (SUPABASE_URL ...) يكتبها في js/config.js أثناء البناء.
+  # إن لم تضبطها لا يغيّر شيئاً (تبقى القيم التي كتبتها يدوياً في js/config.js).
+  command = "node scripts/generate-config.mjs"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    # ⚠ إن استعملت دومين مخصصاً لـ Supabase أضفه إلى connect-src و img-src.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300, must-revalidate"

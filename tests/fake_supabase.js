@@ -1,0 +1,88 @@
+/* مكتبة Supabase "وهمية" داخل المتصفح لاختبار واجهة الإدارة فقط (لا تُستعمل في الإنتاج).
+   تحاكي: تسجيل الدخول، الجداول، قواعد وصول شبيهة بـ RLS (الكتابة للمسؤول فقط، القراءة العامة للمنشور فقط)، التخزين.
+   ⚠ هذا لا يختبر سياسات RLS الحقيقية في Postgres — فقط سلوك الواجهة. */
+(function () {
+  var db = { categories: [{ id: "c1", slug: "photography", sort_order: 10, is_active: true }], category_translations: [{ id: "ct1", category_id: "c1", language: "ar", name: "التصوير" }, { id: "ct2", category_id: "c1", language: "en", name: "Photography" }],
+    products: [], product_translations: [], product_private: [], admin_users: [{ user_id: "u1" }] };
+  if (window.__SEED) Object.keys(window.__SEED).forEach(function (k) { db[k] = db[k].concat(window.__SEED[k]); });   // بيانات أولية للاختبار
+  var users = { "admin@x.com": { id: "u1", pass: "pass123" }, "user@x.com": { id: "u2", pass: "pass123" } };
+  var user = null, listeners = [], seq = 0, storage = { "product-images": {}, "digital-files": {} };
+  window.__fake = { db: db, storage: storage, log: [], expireNext: false, get user() { return user; } };
+  var isAdmin = function () { return !!user && db.admin_users.some(function (a) { return a.user_id === user.id; }); };
+  var RLS = { message: "new row violates row-level security policy", code: "42501" };
+  function clone(x) { return JSON.parse(JSON.stringify(x)); }
+  function embed(table, row) {
+    var r = clone(row);
+    if (table === "products") { r.product_translations = clone(db.product_translations.filter(function (x) { return x.product_id === row.id; })); r.product_private = isAdmin() ? clone(db.product_private.filter(function (x) { return x.product_id === row.id; })) : []; }
+    if (table === "categories") r.category_translations = clone(db.category_translations.filter(function (x) { return x.category_id === row.id; }));
+    return r;
+  }
+  function visible(table, row) {   // محاكاة سياسات القراءة العامة
+    if (isAdmin()) return true;
+    if (table === "products") return !!row.is_published; if (table === "categories") return !!row.is_active;
+    if (table === "product_private" || table === "admin_users") return table === "admin_users" && !!user && row.user_id === user.id;
+    return true;
+  }
+  function Q(table) {
+    var mode = "select", payload, filters = [], ord = null, lim = null, ret = false, single = null, conflict = null;
+    var b = {
+      select: function () { ret = true; return b; }, insert: function (p) { mode = "insert"; payload = p; return b; }, update: function (p) { mode = "update"; payload = p; return b; },
+      upsert: function (p, o) { mode = "upsert"; payload = p; conflict = o && o.onConflict; return b; }, delete: function () { mode = "delete"; return b; },
+      eq: function (c, v) { filters.push(function (r) { return r[c] === v; }); return b; }, in: function (c, a) { filters.push(function (r) { return a.indexOf(r[c]) >= 0; }); return b; },
+      order: function (c, o) { ord = [c, !(o && o.ascending === false)]; return b; }, limit: function (n) { lim = n; return b; },
+      maybeSingle: function () { single = "maybe"; return b; }, single: function () { single = "one"; return b; },
+      then: function (res, rej) { return Promise.resolve(exec()).then(res, rej); }
+    };
+    function matched() { return db[table].filter(function (r) { return filters.every(function (f) { return f(r); }); }); }
+    function uniq(row, skip) {
+      if ((table === "products" || table === "categories") && db[table].some(function (r) { return r !== skip && r.slug === row.slug; })) return { code: "23505", message: "duplicate key value violates unique constraint" };
+      if (table === "products") {   // بعض قيود CHECK من قاعدة البيانات
+        if (!row.quote_only && row.price == null) return { code: "23514", message: "violates check constraint price_required" };
+        if (row.type === "physical" && row.fulfillment === "own_stock" && row.stock_quantity == null) return { code: "23514", message: "violates check constraint own_stock_has_qty" };
+      }
+    }
+    function exec() {
+      window.__fake.log.push(mode + ":" + table);
+      if (window.__fake.expireNext) { window.__fake.expireNext = false; user = null; return { data: null, error: { code: "PGRST301", message: "JWT expired" } }; }
+      var out;
+      if (mode === "select") {
+        var rows = matched().filter(function (r) { return visible(table, r); });
+        if (ord) rows.sort(function (a, c) { return (a[ord[0]] > c[ord[0]] ? 1 : -1) * (ord[1] ? 1 : -1); }); if (lim) rows = rows.slice(0, lim);
+        out = rows.map(function (r) { return embed(table, r); });
+      } else {
+        if (!isAdmin()) return { data: null, error: RLS };
+        if (mode === "insert") { var row = Object.assign({ id: "id" + (++seq), created_at: new Date(Date.now() + seq).toISOString() }, clone(payload)); var er = uniq(row); if (er) return { data: null, error: er }; db[table].push(row); out = [row]; }
+        else if (mode === "update") { var ms = matched(); for (var i = 0; i < ms.length; i++) { var er2 = uniq(Object.assign({}, ms[i], payload), ms[i]); if (er2) return { data: null, error: er2 }; } ms.forEach(function (r) { Object.assign(r, clone(payload)); }); out = ms; }
+        else if (mode === "upsert") {
+          var arr = Array.isArray(payload) ? payload : [payload], keys = conflict.split(","); out = [];
+          arr.forEach(function (p) { var ex = db[table].filter(function (r) { return keys.every(function (k) { return r[k] === p[k]; }); })[0]; if (ex) { Object.assign(ex, clone(p)); out.push(ex); } else { var n = Object.assign({ id: "id" + (++seq) }, clone(p)); db[table].push(n); out.push(n); } });
+        } else if (mode === "delete") {
+          var del = matched(); db[table] = db[table].filter(function (r) { return del.indexOf(r) < 0; }); window.__fake.db[table] = db[table];
+          del.forEach(function (r) { if (table === "products") { db.product_translations = db.product_translations.filter(function (x) { return x.product_id !== r.id; }); db.product_private = db.product_private.filter(function (x) { return x.product_id !== r.id; }); } if (table === "categories") { db.category_translations = db.category_translations.filter(function (x) { return x.category_id !== r.id; }); db.products.forEach(function (p) { if (p.category_id === r.id) p.category_id = null; }); } });
+          out = del;
+        }
+        if (!ret) out = null;
+      }
+      if (single && out) { if (out.length === 0) return single === "one" ? { data: null, error: { message: "no rows", code: "PGRST116" } } : { data: null, error: null }; return { data: out[0], error: null }; }
+      if (single) return { data: null, error: null };
+      return { data: out, error: null };
+    }
+    return b;
+  }
+  window.supabase = { createClient: function () {
+    return {
+      from: function (t) { return Q(t); },
+      auth: {
+        getSession: function () { return Promise.resolve({ data: { session: user ? { user: { id: user.id, email: user.email } } : null } }); },
+        signInWithPassword: function (c) { var u = users[c.email]; if (!u || u.pass !== c.password) return Promise.resolve({ data: null, error: { message: "Invalid login credentials" } }); user = { id: u.id, email: c.email }; return Promise.resolve({ data: { session: { user: user } }, error: null }); },
+        signOut: function () { user = null; listeners.forEach(function (f) { f("SIGNED_OUT"); }); return Promise.resolve({ error: null }); },
+        onAuthStateChange: function (cb) { listeners.push(cb); return { data: { subscription: {} } }; }
+      },
+      storage: { from: function (bucket) { return {
+        upload: function (path, blob, o) { if (!isAdmin()) return Promise.resolve({ data: null, error: RLS }); if (storage[bucket][path] && !(o && o.upsert)) return Promise.resolve({ data: null, error: { message: "exists" } }); storage[bucket][path] = { size: blob.size, type: blob.type || (o && o.contentType) }; return Promise.resolve({ data: { path: path }, error: null }); },
+        remove: function (paths) { if (!isAdmin()) return Promise.resolve({ data: null, error: RLS }); paths.forEach(function (p) { delete storage[bucket][p]; }); return Promise.resolve({ data: [], error: null }); },
+        createSignedUrl: function (path, s) { if (!isAdmin()) return Promise.resolve({ data: null, error: RLS }); return Promise.resolve({ data: { signedUrl: "https://test.supabase.co/storage/v1/object/sign/" + bucket + "/" + path + "?token=t&exp=" + s }, error: null }); }
+      }; } }
+    };
+  } };
+})();

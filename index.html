@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Triple A Store — متجر أدوات وقوالب وخدمات تصميم</title>
+  <meta name="description" content="Triple A Store: أدوات رسم وتصوير وإكسسوارات حاسوب وقوالب رقمية وخدمات تصميم. اطلب مباشرة عبر واتساب.">
+  <meta name="theme-color" content="#0a0712">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Triple A Store">
+  <meta property="og:locale" content="ar_MA">
+  <meta property="og:title" content="Triple A Store">
+  <meta property="og:description" content="Triple A Store: أدوات وقوالب وخدمات تصميم. اطلب مباشرة عبر واتساب.">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Triple A Store">
+  <meta name="twitter:description" content="Triple A Store: أدوات وقوالب وخدمات تصميم. اطلب مباشرة عبر واتساب.">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Unbounded:wght@500;700&display=swap">
+  <link rel="stylesheet" href="css/store.css">
+  <script src="js/boot.js"></script>
+</head>
+<body data-page="home" data-nav="store">
+  <main id="main">
+    <section class="hero" aria-labelledby="h1">
+      <div class="wrap hero-in">
+        <div class="hero-txt">
+          <p class="pos" data-t="hero.kicker"></p>
+          <h1 id="h1" data-t="hero.title"></h1>
+          <p class="sub" data-t="hero.sub"></p>
+          <div class="acts">
+            <a class="btn pri lg" href="#catalog" data-t="hero.cta"></a>
+            <a class="btn lg" href="#catalog" data-type-link="service" data-t="hero.cta2"></a>
+          </div>
+        </div>
+        <div class="hero-vis"><img src="assets/logo.webp" data-talt="hero.logo" alt="" width="490" height="385" fetchpriority="high"></div>
+      </div>
+    </section>
+
+    <section class="sec" aria-labelledby="types-h">
+      <div class="wrap">
+        <div class="sh"><h2 id="types-h" data-t="sec.types"></h2></div>
+        <div class="types" id="types"></div>
+      </div>
+    </section>
+
+    <section class="sec" id="featured-sec" aria-labelledby="feat-h" hidden>
+      <div class="wrap">
+        <div class="sh"><h2 id="feat-h" data-t="sec.featured"></h2></div>
+        <div class="grid" id="featured"></div>
+      </div>
+    </section>
+
+    <section class="sec" id="catalog" aria-labelledby="cat-h">
+      <div class="wrap">
+        <div class="sh"><h2 id="cat-h" data-t="sec.catalog"></h2></div>
+        <div class="chips" id="cats" role="group" data-taria="f.category"></div>
+        <details class="fwrap" id="fwrap">
+          <summary class="btn sm fsum" data-t="f.title"></summary>
+          <form class="filters" id="filters" autocomplete="off" novalidate>
+            <label><span data-t="f.type"></span>
+              <select id="f-type"></select></label>
+            <div class="fld"><span data-t="f.price"></span>
+              <div class="pr">
+                <input id="f-min" type="number" min="0" step="1" inputmode="numeric" data-taria="f.min" data-tph="f.min">
+                <input id="f-max" type="number" min="0" step="1" inputmode="numeric" data-taria="f.max" data-tph="f.max">
+              </div></div>
+            <label><span data-t="f.sort"></span>
+              <select id="f-sort"></select></label>
+            <label class="chk"><input id="f-stock" type="checkbox"><span data-t="f.instock"></span></label>
+          </form>
+        </details>
+        <div class="fbar"><span id="count" role="status" aria-live="polite"></span><button class="btn sm" id="reset" type="button" data-t="f.reset"></button></div>
+        <div id="status"></div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/cart-core.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/demo-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.1"></script>
+  <script src="js/api.js"></script>
+  <script src="js/cards.js"></script>
+  <script src="js/store.js"></script>
+</body>
+</html>

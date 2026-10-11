@@ -1,0 +1,6 @@
+# Triple A Store — الأدمن ليس مؤمَّناً بهذا الملف (الأمان الحقيقي بتسجيل الدخول وRLS)؛ هذا فقط لمنع الأرشفة.
+User-agent: *
+Disallow: /admin.html
+Disallow: /cart.html
+# أضف السطر التالي بعد اختيار الدومين النهائي:
+# Sitemap: https://YOUR-STORE-DOMAIN/sitemap.xml
