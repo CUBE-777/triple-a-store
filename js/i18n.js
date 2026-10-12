@@ -272,5 +272,32 @@ window.STORE_UI = {
   "a.cat.active": ["فعّال (ظاهر للزوار)", "Actif (visible)", "Active (visible)"],
   "a.cat.slug": ["الرابط (slug)", "Slug", "Slug"],
   "a.cat.name": ["الاسم", "Nom", "Name"],
-  "a.cat.v": ["الرابط غير صالح أو الاسم العربي ناقص.", "Slug invalide ou nom arabe manquant.", "Invalid slug or missing Arabic name."]
+  "a.cat.v": ["الرابط غير صالح أو الاسم العربي ناقص.", "Slug invalide ou nom arabe manquant.", "Invalid slug or missing Arabic name."],
+  /* ---------- تكبير الصور ---------- */
+  "lb.open": ["تكبير الصورة", "Agrandir l'image", "Enlarge image"],
+  "lb.close": ["إغلاق الصورة", "Fermer l'image", "Close image"],
+  "lb.prev": ["الصورة السابقة", "Image précédente", "Previous image"],
+  "lb.next": ["الصورة التالية", "Image suivante", "Next image"],
+  "lb.count": ["{i} من {n}", "{i} sur {n}", "{i} of {n}"],
+
+  /* ---------- الطلبات (لوحة الإدارة) ---------- */
+  "a.orders": ["الطلبات", "Commandes", "Orders"],
+  "a.o.s.new": ["جديد", "Nouvelle", "New"],
+  "a.o.s.confirmed": ["مؤكد", "Confirmée", "Confirmed"],
+  "a.o.s.completed": ["مكتمل", "Terminée", "Completed"],
+  "a.o.s.cancelled": ["ملغى", "Annulée", "Cancelled"],
+  "a.o.all": ["كل الحالات", "Tous les statuts", "All statuses"],
+  "a.o.none": ["لا توجد طلبات.", "Aucune commande.", "No orders."],
+  "a.o.help": ["«جديد» تعني أن الزبون ضغط زر الإرسال فقط؛ لا تعني أنه أرسل الرسالة أو دفع. المخزون لا يُخصم تلقائياً: عدّله يدوياً بعد التأكيد.", "« Nouvelle » signifie que le client a cliqué sur le bouton d'envoi ; pas qu'il a envoyé le message ou payé. Le stock n'est pas déduit automatiquement : ajustez-le après confirmation.", "\"New\" only means the customer clicked the send button; not that the message was sent or paid. Stock is not deducted automatically: adjust it after confirming."],
+  "a.o.ref": ["المرجع", "Référence", "Reference"],
+  "a.o.lang": ["لغة الزبون", "Langue du client", "Customer language"],
+  "a.o.est": ["تقديري", "Estimé", "Estimated"],
+  "a.o.quote": ["عرض سعر", "Devis", "Quote"],
+  "a.o.gone": ["منتج محذوف", "Produit supprimé", "Deleted product"],
+  "a.o.note": ["ملاحظة داخلية (لا تظهر للزبون)", "Note interne (invisible pour le client)", "Internal note (hidden from the customer)"],
+  "a.o.savenote": ["حفظ الملاحظة", "Enregistrer la note", "Save note"],
+  "a.o.setstatus": ["تغيير الحالة:", "Changer le statut :", "Set status:"],
+  "a.o.refresh": ["تحديث", "Actualiser", "Refresh"],
+  "a.o.newtoast": ["وصل طلب جديد", "Nouvelle commande reçue", "New order received"],
+  "a.o.confirm": ["هل تريد حذف الطلب «{ref}» نهائياً؟", "Supprimer définitivement la commande « {ref} » ?", "Permanently delete order \"{ref}\"?"]
 };

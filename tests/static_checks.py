@@ -16,7 +16,7 @@ js_links = set()
 for f in glob.glob("js/*.js"):
     for m in re.finditer(r'["\'](?:index|product|cart|admin)\.html', open(f, encoding="utf-8").read()): js_links.add(m.group(0)[1:])
 check("الصفحات المشار إليها من JS موجودة", all(os.path.exists(x) for x in js_links), js_links)
-check("ملفات الترحيلات الأربعة + إنشاء المسؤول موجودة", all(os.path.exists(x) for x in ["supabase/migrations/001_schema.sql", "supabase/migrations/002_rls_policies.sql", "supabase/migrations/003_storage.sql", "supabase/migrations/004_seed_categories.sql", "supabase/create_first_admin.sql"]))
+check("ملفات الترحيلات الأربعة + إنشاء المسؤول موجودة", all(os.path.exists(x) for x in ["supabase/migrations/001_schema.sql", "supabase/migrations/002_rls_policies.sql", "supabase/migrations/003_storage.sql", "supabase/migrations/004_seed_categories.sql", "supabase/migrations/005_orders.sql", "supabase/create_first_admin.sql"]))
 hits = []
 pat = re.compile(r"service_role\s*[:=]\s*[\"'][^\"']{10,}|sb_secret_[A-Za-z0-9]{10,}|eyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{5,}|-----BEGIN [A-Z ]*PRIVATE KEY|SUPABASE_SERVICE")
 for f in [x for x in glob.glob("**/*", recursive=True) if os.path.isfile(x) and not x.endswith("static_checks.py")]:
@@ -31,9 +31,10 @@ check("لا استعمال لـ localStorage لبيانات حساسة (فقط l
 check("لا eval/new Function/document.write في الكود", not re.search(r"\beval\(|new Function\(|document\.write\(", "".join(open(f, encoding="utf-8").read() for f in glob.glob("js/*.js"))))
 check("لا onclick/onerror مضمّنة (متوافق مع CSP)", not any(re.search(r"\son(click|error|load)=", open(f, encoding="utf-8").read()) for f in htmls))
 check("أي سكربت HTML مضمّن غير موجود (CSP script-src 'self')", not any(re.search(r"<script(?![^>]*\bsrc=)[^>]*>", open(f, encoding="utf-8").read()) for f in htmls))
-sql = open("supabase/migrations/002_rls_policies.sql", encoding="utf-8").read()
-tables = re.findall(r"create table if not exists public\.(\w+)", open("supabase/migrations/001_schema.sql", encoding="utf-8").read())
+sql = open("supabase/migrations/002_rls_policies.sql", encoding="utf-8").read() + open("supabase/migrations/005_orders.sql", encoding="utf-8").read()
+tables = re.findall(r"create table if not exists public\.(\w+)", open("supabase/migrations/001_schema.sql", encoding="utf-8").read() + open("supabase/migrations/005_orders.sql", encoding="utf-8").read())
 check("RLS مفعّل على كل جدول معرَّف: " + ", ".join(tables), all(re.search(rf"alter table public\.{t}\s+enable row level security", sql) for t in tables))
 check("لا سياسة insert/update/delete لـ anon", not re.search(r"for (insert|update|delete|all) to anon", sql))
+check("جداول الطلبات: لا صلاحية كتابة مباشرة للزوار؛ الدالة create_order فقط", not re.search(r"grant\s+(insert|update|delete)[^;]*public\.(orders|order_items)[^;]*to[^;]*anon", sql) and "grant execute on function public.create_order(text, text, jsonb) to anon, authenticated" in sql and "revoke all on function public.create_order(text, text, jsonb) from public" in sql)
 check("admin_users بدون أي سياسة كتابة", not re.search(r"on public\.admin_users\s+for (insert|update|delete|all)", sql))
 print(f"\nالنتيجة: {sum(R)} نجح، {len(R)-sum(R)} فشل"); sys.exit(0 if all(R) else 1)

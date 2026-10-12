@@ -23,7 +23,7 @@ try:
         print("بدون ضبط storeUrl: السلوك مطابق للأصلي تماماً")
         for path in PAGES:
             a, b = page(8771), page(8772)
-            a.goto(f"http://127.0.0.1:8771/{path}"); b.goto(f"http://127.0.0.1:8772/{path}"); a.wait_for_selector("#nav a"); b.wait_for_selector("#nav a")
+            a.goto(f"http://127.0.0.1:8771/{path}"); b.goto(f"http://127.0.0.1:8772/{path}"); a.wait_for_selector("#nav a"); b.wait_for_selector("#nav a"); a.wait_for_timeout(2000); b.wait_for_timeout(2000)   # ننتظر استقرار سكربت الأصل (aria-current يُضبط بعد التحميل بالتمرير)
             check(f"{path}: قائمة التنقل والفوتر مطابقتان للأصلي", navs(a) == navs(b))
         print("مع ضبط storeUrl: الرابط يظهر بالصيغة الصحيحة في كل الصفحات واللغات")
         for lang, label in [("ar", "المتجر"), ("fr", "Boutique"), ("en", "Store")]:
@@ -37,6 +37,7 @@ try:
         pg.click("#langs [data-l=en]"); check("تبديل اللغة يحدّث تسمية الرابط (Store)", pg.locator("#nav a", has_text="Store").count() == 1)
         pg.click("#theme"); check("تبديل الثيم يعمل", pg.evaluate("document.documentElement.dataset.theme") in ("light", "dark"))
         m = page(8773, 375); m.goto("http://127.0.0.1:8773/index.html"); m.wait_for_selector("#menu"); m.wait_for_timeout(1500); m.click("#menu"); m.wait_for_timeout(500)
+        m.locator("#nav a", has_text="المتجر").wait_for(state="visible", timeout=5000)
         check("الجوال: الرابط ظاهر داخل القائمة", m.locator("#nav a", has_text="المتجر").is_visible() and m.evaluate("document.documentElement.scrollWidth <= innerWidth"))
         # رابط الأصل → المتجر وعودة: href صحيح وrel آمن
         check("الرابط يفتح في نفس التبويب مع rel=noopener", pg.locator("#nav a", has_text="Store").get_attribute("rel") == "noopener")

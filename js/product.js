@@ -85,7 +85,7 @@
       Cart.save(localStorage, r.lines); TS.toast(r.clamped ? TS.t("toast.limit") : TS.t("toast.added"), r.clamped ? "err" : "ok"); return;
     }
     if ((b = e.target.closest("#wa-order")) && b.dataset.invalid) { e.preventDefault(); TS.toast(firstMissing(), "err"); }
-    else if (b) { ref = Cart.makeRef(); setTimeout(syncLinks, 400); }   // مرجع جديد لكل إرسال
+    else if (b) { if (window.TSOrders) TSOrders.record(ref, current().items); ref = Cart.makeRef(); setTimeout(syncLinks, 400); }   // مرجع جديد لكل إرسال
   });
   root.addEventListener("change", function (e) { var s = e.target.closest("[data-opt]"); if (s) { if (s.value) opts[s.dataset.opt] = s.value; else delete opts[s.dataset.opt]; syncLinks(); } });
   root.addEventListener("input", function (e) { if (e.target.id === "pnote") { note = e.target.value; syncLinks(); } });

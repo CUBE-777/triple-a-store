@@ -85,7 +85,7 @@
     if ((b = e.target.closest("[data-rm]"))) { lines.splice(+b.dataset.rm, 1); persist(); render(); return; }
     if (e.target.closest("#clear")) { lines = []; persist(); render(); return; }
     if (e.target.closest("#rm-bad")) { lines = lines.filter(function (l, i) { return priced.items[i].status === "ok"; }); persist(); render(); return; }
-    if ((b = e.target.closest("#wa-send"))) { if (b.getAttribute("aria-disabled") === "true") { e.preventDefault(); return; } ref = Cart.makeRef(); setTimeout(function () { var r = $(".ref b"); if (r) r.textContent = ref; syncSend(); }, 400); }
+    if ((b = e.target.closest("#wa-send"))) { if (b.getAttribute("aria-disabled") === "true") { e.preventDefault(); return; } if (window.TSOrders && priced) TSOrders.record(ref, priced.items); ref = Cart.makeRef(); setTimeout(function () { var r = $(".ref b"); if (r) r.textContent = ref; syncSend(); }, 400); }
   });
   root.addEventListener("input", function (e) {
     var t = e.target.closest("[data-note]"); if (!t) return;
