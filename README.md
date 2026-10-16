@@ -269,3 +269,20 @@ python3 tests/e2e_original_site.py "<الأصلي>" "<بعد التعديل>"   
 - [ ] نشرت على Netlify (موقع جديد) وضبطت `STORE_URL`.
 - [ ] وضعت `storeUrl` في موقع Studio ونشرته، وجرّبت الرابط في الاتجاهين على الجوال والحاسوب.
 - [ ] قرّرت ما تفعله بشأن إيقاف مشاريع Supabase المجانية الخاملة.
+
+
+---
+
+## 12) إدارة المعرض (Portfolio) من لوحة الإدارة نفسها
+
+تبويب **«إدارة المعرض»** في `admin.html` يدير مشاريع موقع المعرض (Triple A Studio) من نفس مشروع Supabase ونفس حساب المسؤول.
+
+**التفعيل (مرة واحدة):** في SQL Editor نفّذ بالترتيب `supabase/migrations/006_portfolio.sql` ثم `007_portfolio_seed_taxonomy.sql` ثم (موصى به) `008_portfolio_seed_existing_project.sql`، ثم شغّل `supabase/verify_portfolio.sql` وقارن بالنتائج المتوقعة في تعليقاته. لا حاجة لأي إعداد تخزين: الصور تُرفع إلى الـbucket الموجود `product-images` تحت المسار `portfolio/` بسياساته الحالية.
+
+**ما الذي يفعله التبويب:** قائمة وبحث وفلاتر، إضافة/تعديل/حذف (بتأكيد)، رفع غلاف ومعرض صور (تُصغَّر إلى 1600px وWebP)، اختيار الفئة والمجموعة، تمييز Featured، نشر/إخفاء، ترتيب العرض، ونصوص بثلاث لغات.
+
+**الأمان:** القراءة العامة للمنشور فقط، والكتابة لمن تنطبق عليه `is_admin()` فقط (يفرضها Postgres). لإلغاء الميزة احذف وسم `<script src="js/admin-portfolio.js">` من `admin.html`.
+
+**خارج نطاق الواجهة حالياً:** إدارة الفئات/المجموعات (عدّلها من Supabase → Table Editor، جداول `portfolio_categories` و`portfolio_collections`) وحقول `extra` (مراحل العمل/الأرقام/قبل-بعد) — تُحفظ كما هي ولا تُمسّ عند التعديل.
+
+الاختبارات: `python3 tests/e2e_portfolio_admin.py` (65 فحصاً).

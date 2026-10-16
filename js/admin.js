@@ -48,6 +48,7 @@
   function showLogin(message) {
     view = "login"; form = null; busy = false;
     if (window.TSAdminOrders) window.TSAdminOrders.stop();
+    if (window.TSAdminPortfolio) window.TSAdminPortfolio.stop();
     root.innerHTML = '<form class="login" id="login" novalidate><h1 style="font-size:1.3rem">' + esc(t("a.login")) + "</h1>" +
       (message ? '<div class="errs" role="alert">' + esc(message) + "</div>" : "") +
       '<label class="fld">' + esc(t("a.email")) + '<input type="email" id="l-email" autocomplete="username" required></label>' +
@@ -72,6 +73,7 @@
     setBusy(false); view = "list"; page = 1;
     try { await loadAll(); } catch (e) { fail(e); }
     if (window.TSAdminOrders) window.TSAdminOrders.start(octx());
+    if (window.TSAdminPortfolio) window.TSAdminPortfolio.start(octx());
     render();
   }
 
@@ -85,17 +87,18 @@
   }
 
   // ما تحتاجه الإضافات (مثل الطلبات) من هذا الملف
-  function octx() { return { sb: sb, db: db, fail: fail, frame: frame, setBusy: setBusy, busy: function () { return busy; }, view: function () { return view; }, confirmDialog: confirmDialog, root: root }; }
+  function octx() { return { sb: sb, db: db, fail: fail, frame: frame, setBusy: setBusy, busy: function () { return busy; }, view: function () { return view; }, confirmDialog: confirmDialog, root: root, expire: expire, isAuthErr: isAuthErr, Handled: Handled }; }
 
   /* ---------------------------------------------------------------- الإطار العام */
   function frame(inner) {
-    var tabs = '<div class="tabs"><button class="btn sm' + (view === "list" || view === "form" ? " pri" : "") + '" data-go="list">' + esc(t("a.products")) + '</button><button class="btn sm' + (view === "cats" ? " pri" : "") + '" data-go="cats">' + esc(t("a.categories")) + "</button>" + (window.TSAdminOrders ? window.TSAdminOrders.tab(view === "orders") : "") + "</div>";
+    var tabs = '<div class="tabs"><button class="btn sm' + (view === "list" || view === "form" ? " pri" : "") + '" data-go="list">' + esc(t("a.products")) + '</button><button class="btn sm' + (view === "cats" ? " pri" : "") + '" data-go="cats">' + esc(t("a.categories")) + "</button>" + (window.TSAdminOrders ? window.TSAdminOrders.tab(view === "orders") : "") + (window.TSAdminPortfolio ? window.TSAdminPortfolio.tab(view === "portfolio") : "") + "</div>";
     return '<div class="adm-top"><h1 style="font-size:1.3rem">' + esc(t("a.title")) + '</h1><div class="acts"><span class="note" dir="ltr">' + esc(session.user.email || "") + '</span><button class="btn sm" data-signout>' + esc(t("a.signout")) + "</button></div></div>" + tabs + '<div style="margin-top:18px">' + inner + "</div>";
   }
   function render() {
     if (view === "login") return showLogin();
     if (view === "form") { collect(); return renderForm(); }
     if (view === "orders" && window.TSAdminOrders) return window.TSAdminOrders.render(octx());
+    if (view === "portfolio" && window.TSAdminPortfolio) return window.TSAdminPortfolio.render(octx());
     if (view === "cats") return renderCats();
     renderList();
   }

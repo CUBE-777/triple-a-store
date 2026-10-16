@@ -3,7 +3,15 @@
    ⚠ هذا لا يختبر سياسات RLS الحقيقية في Postgres — فقط سلوك الواجهة. */
 (function () {
   var db = { categories: [{ id: "c1", slug: "photography", sort_order: 10, is_active: true }], category_translations: [{ id: "ct1", category_id: "c1", language: "ar", name: "التصوير" }, { id: "ct2", category_id: "c1", language: "en", name: "Photography" }],
-    products: [], product_translations: [], product_private: [], admin_users: [{ user_id: "u1" }], orders: [], order_items: [] };
+    products: [], product_translations: [], product_private: [], admin_users: [{ user_id: "u1" }], orders: [], order_items: [],
+    portfolio_projects: [],   // جداول المعرض (006/007) — نفس البيانات المبدئية لملف 007
+    portfolio_categories: [
+      { id: "pc1", slug: "web-development", service: "Digital", names: { ar: "تطوير المواقع", fr: "Développement web", en: "Web Development" }, sort_order: 10, is_active: true },
+      { id: "pc2", slug: "graphic-design", service: "Design", names: { ar: "التصميم الجرافيكي", fr: "Design graphique", en: "Graphic Design" }, sort_order: 20, is_active: true },
+      { id: "pc3", slug: "print", service: "Printing", names: { ar: "طباعة", fr: "Impression", en: "Print" }, sort_order: 30, is_active: true },
+      { id: "pc4", slug: "video-motion", service: "Design", names: { ar: "فيديو / موشن", fr: "Vidéo / Motion", en: "Video / Motion" }, sort_order: 40, is_active: true },
+      { id: "pc5", slug: "digital-services", service: "Digital", names: { ar: "خدمات رقمية", fr: "Services digitaux", en: "Digital Services" }, sort_order: 50, is_active: true }],
+    portfolio_collections: [{ id: "pl1", slug: "business-cards", category_slug: "graphic-design", ratio: "9/5", names: { ar: "بطاقات الأعمال", fr: "Cartes de visite", en: "Business Cards" }, sort_order: 10, is_active: true }] };
   if (window.__SEED) Object.keys(window.__SEED).forEach(function (k) { db[k] = db[k].concat(window.__SEED[k]); });   // بيانات أولية للاختبار
   var users = { "admin@x.com": { id: "u1", pass: "pass123" }, "user@x.com": { id: "u2", pass: "pass123" } };
   var user = null, listeners = [], seq = 0, storage = { "product-images": {}, "digital-files": {} };
@@ -22,6 +30,7 @@
     if (isAdmin()) return true;
     if (table === "orders" || table === "order_items") return false;
     if (table === "products") return !!row.is_published; if (table === "categories") return !!row.is_active;
+    if (table === "portfolio_projects") return !!row.is_published; if (table === "portfolio_categories" || table === "portfolio_collections") return !!row.is_active;
     if (table === "product_private" || table === "admin_users") return table === "admin_users" && !!user && row.user_id === user.id;
     return true;
   }
@@ -37,7 +46,15 @@
     };
     function matched() { return db[table].filter(function (r) { return filters.every(function (f) { return f(r); }); }); }
     function uniq(row, skip) {
-      if ((table === "products" || table === "categories") && db[table].some(function (r) { return r !== skip && r.slug === row.slug; })) return { code: "23505", message: "duplicate key value violates unique constraint" };
+      if ((table === "products" || table === "categories" || table === "portfolio_projects" || table === "portfolio_categories" || table === "portfolio_collections") && db[table].some(function (r) { return r !== skip && r.slug === row.slug; })) return { code: "23505", message: "duplicate key value violates unique constraint" };
+      if (table === "portfolio_projects") {   // قيود 006: شكل slug، عنوان غير فارغ، مفتاح أجنبي للفئة والمجموعة، أبعاد الغلاف معاً
+        if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(row.slug || "")) return { code: "23514", message: "violates check constraint portfolio_projects_slug_check" };
+        var tt = row.title || {}; if (!String(tt.ar || "").trim() && !String(tt.fr || "").trim() && !String(tt.en || "").trim()) return { code: "23514", message: "violates check constraint pp_title_shape" };
+        if (!db.portfolio_categories.some(function (c) { return c.slug === row.category_slug; })) return { code: "23503", message: "violates foreign key constraint (category_slug)" };
+        if (row.collection_slug && !db.portfolio_collections.some(function (c) { return c.slug === row.collection_slug; })) return { code: "23503", message: "violates foreign key constraint (collection_slug)" };
+        if ((row.cover_w == null) !== (row.cover_h == null)) return { code: "23514", message: "violates check constraint pp_cover_size" };
+        if (!Array.isArray(row.gallery || []) || (row.gallery || []).length > 20) return { code: "23514", message: "violates check constraint pp_gallery_shape" };
+      }
       if (table === "products") {   // بعض قيود CHECK من قاعدة البيانات
         if (!row.quote_only && row.price == null) return { code: "23514", message: "violates check constraint price_required" };
         if (row.type === "physical" && row.fulfillment === "own_stock" && row.stock_quantity == null) return { code: "23514", message: "violates check constraint own_stock_has_qty" };
