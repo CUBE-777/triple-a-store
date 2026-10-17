@@ -3,13 +3,14 @@
    المتغيرات في الأعلى منسوخة من الموقع الأصلي لتبقى الهوية متطابقة بدون ربط الملفات ببعضها.
    نستعمل خصائص منطقية (inline-start/end) لكي يعمل RTL وLTR بدون تكرار. */
 :root{
+  color-scheme:dark;
   --bg:#0a0712;--s:#120e1c;--s2:#1a1428;--t:#eef1f5;--m:#a7adbb;--l:#2a2238;
   --a:#8b5cf6;--a2:#b9a0ff;--r:14px;--ls:.03em;--ok:#34d399;--warn:#fbbf24;--bad:#f87171;
   --hd:"Unbounded","IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;
   --bd:"IBM Plex Sans Arabic","Segoe UI",system-ui,Tahoma,sans-serif;
   --ease:cubic-bezier(.2,.7,.2,1);
 }
-[data-theme=light]{--bg:#f6f4fb;--s:#fff;--s2:#efeaf8;--t:#0e0b16;--m:#565c6a;--l:#ddd6ea;--a:#6d3fe0;--a2:#5b2fd0;--ok:#047857;--warn:#92400e;--bad:#b91c1c}
+[data-theme=light]{color-scheme:light;--bg:#f6f4fb;--s:#fff;--s2:#efeaf8;--t:#0e0b16;--m:#565c6a;--l:#ddd6ea;--a:#6d3fe0;--a2:#5b2fd0;--ok:#047857;--warn:#92400e;--bad:#b91c1c}
 html[lang=ar]{--ls:0}
 *,*::before,*::after{box-sizing:border-box}
 *{margin:0}
@@ -116,8 +117,9 @@ html[lang=ar] #nav{font-size:.95rem;letter-spacing:0}
 .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:end;padding:16px;border:1px solid var(--l);border-radius:var(--r);background:var(--s);margin-block:6px 16px}
 .filters label,.fld{display:grid;gap:6px;font-size:.82rem;color:var(--m)}
 .filters .pr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-select,input[type=text],input[type=number],input[type=email],input[type=password],input[type=search],textarea{width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--l);border-radius:10px;background:var(--bg);color:var(--t)}
+select,input:not([type]),input[type=text],input[type=number],input[type=email],input[type=password],input[type=search],input[type=url],input[type=tel],input[type=date],textarea{width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--l);border-radius:10px;background:var(--bg);color:var(--t)}
 textarea{min-height:90px;resize:vertical;line-height:1.5}
+option{background:var(--s);color:var(--t)}
 select:focus,input:focus,textarea:focus{border-color:var(--a);outline:0}
 .chk{display:flex!important;grid-auto-flow:column;align-items:center;gap:10px!important;color:var(--t)!important;min-height:44px}
 .chk input{width:20px;height:20px;accent-color:var(--a)}
@@ -293,11 +295,11 @@ dialog .acts{margin-top:18px;justify-content:flex-end}
 .gal .main{aspect-ratio:1/1;cursor:zoom-in}
 .line .th{aspect-ratio:1/1}
 .thumbs button{aspect-ratio:1/1}
-.lb{border:0;padding:0;background:rgba(5,3,10,.96);color:#fff;width:100vw;height:100dvh;max-width:none;max-height:none}
+.lb{--lbv:112px;border:0;padding:0;background:rgba(5,3,10,.96);color:#fff;width:100vw;height:100vh;height:100dvh;max-width:none;max-height:none;overflow:hidden}
 .lb::backdrop{background:rgba(0,0,0,.85)}
-.lb[open]{display:grid;grid-template-columns:auto 1fr auto;align-items:center}
-.lb-stage{height:100%;min-width:0;display:grid;place-items:center;padding:60px 6px 52px}
-.lb-stage img{max-width:100%;max-height:100%;object-fit:contain;touch-action:pan-y}
+.lb[open]{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr);align-items:center}
+.lb-stage{height:100%;min-width:0;min-height:0;display:grid;place-items:center;padding:60px 6px 52px}
+.lb-stage img{width:auto;height:auto;max-width:100%;max-height:calc(100vh - var(--lbv));max-height:calc(100dvh - var(--lbv));object-fit:contain;touch-action:pan-y}
 .lb-x,.lb-n{width:46px;height:46px;border:1px solid rgba(255,255,255,.25);border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:1.4rem;cursor:pointer}
 .lb-x:hover,.lb-n:hover{background:rgba(255,255,255,.2)}
 .lb-x{position:absolute;inset-block-start:12px;inset-inline-end:12px;z-index:2}
@@ -311,7 +313,8 @@ dialog .acts{margin-top:18px;justify-content:flex-end}
 @media(max-width:800px){.pd{margin-top:0}.crumbs{margin-bottom:14px}}
 @media(max-width:600px){
   .lb[open]{display:block}
-  .lb-stage{height:100dvh;padding:64px 6px 56px}
+  .lb{--lbv:120px}
+  .lb-stage{height:100vh;height:100dvh;padding:64px 6px 56px}
   .lb-n{position:absolute;inset-block-start:50%;margin:0 8px;transform:translateY(-50%)}
   .lb-prev{inset-inline-start:0}.lb-next{inset-inline-end:0}
   [dir=rtl] .lb-n{transform:translateY(-50%) scaleX(-1)}

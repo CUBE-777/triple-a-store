@@ -181,7 +181,7 @@
     }).join("");
     var cover = f.cover ? '<div class="imgs"><div class="im"><div class="pv">' + thumb(f.cover) + '</div><span class="pill on">' + esc(t("a.f.img.main")) + '</span><div class="row"><button type="button" data-pact="cdel" aria-label="' + esc(t("a.delete")) + '">✕</button></div></div></div>' : '<p class="hint">' + esc(t("a.pf.f.cover.none")) + "</p>";
     var links = LINKS.map(function (k) { return fld(lbl(k[1]), "pf-l-" + k[0], inp("pf-l-" + k[0], f.links[k[0]], 'dir="ltr" inputmode="url" maxlength="500" autocapitalize="off" spellcheck="false"')); }).join("");
-    ctx.root.innerHTML = ctx.frame('<form id="pf-form" class="form" novalidate><h2>' + esc(t(f.id ? "a.pf.edit.title" : "a.pf.new.title")) + '</h2><div id="errs" role="alert"></div>' +
+    ctx.root.innerHTML = ctx.frame('<form id="pf-form" class="form" novalidate><h2>' + esc(t(f.id ? "a.pf.edit.title" : "a.pf.new.title")) + '</h2>' + (cats.length ? "" : '<div class="msg err" role="alert">' + esc(t("a.pf.nocats")) + "</div>") + '<div id="errs" role="alert"></div>' +
       '<fieldset class="fs"><legend>' + esc(t("a.pf.f.basic")) + '</legend><div class="g2">' +
       fld(t("a.pf.f.category") + " *", "pf-category", '<select id="pf-category">' + catOpts + "</select>") +
       fld(t("a.pf.f.collection"), "pf-collection", '<select id="pf-collection">' + collOpts + "</select>") +

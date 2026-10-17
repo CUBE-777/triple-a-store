@@ -312,6 +312,7 @@ window.STORE_UI = {
   "a.pf.col.order": ["الترتيب", "Ordre", "Order"],
   "a.pf.empty": ["لا توجد مشاريع بعد. أضف أول مشروع ليظهر في المعرض.", "Aucun projet pour l'instant. Ajoutez le premier pour l'afficher sur le portfolio.", "No projects yet. Add the first one to show it on the portfolio."],
   "a.pf.refresh": ["تحديث", "Actualiser", "Refresh"],
+  "a.pf.nocats": ["لا توجد فئات للمعرض في قاعدة البيانات، لذلك لا يمكن حفظ أي مشروع. نفّذ 007_portfolio_seed_taxonomy.sql من مجلد supabase/migrations ثم اضغط «تحديث» في قائمة المعرض.", "Aucune catégorie de portfolio dans la base : impossible d'enregistrer un projet. Exécutez 007_portfolio_seed_taxonomy.sql (dossier supabase/migrations) puis cliquez sur « Actualiser » dans la liste du portfolio.", "There are no portfolio categories in the database, so no project can be saved. Run 007_portfolio_seed_taxonomy.sql (supabase/migrations folder), then press “Refresh” in the portfolio list."],
   "a.pf.missing": ["جداول المعرض غير موجودة بعد في قاعدة البيانات. نفّذ 006_portfolio.sql ثم 007_portfolio_seed_taxonomy.sql من مجلد supabase/migrations.", "Les tables du portfolio n'existent pas encore. Exécutez 006_portfolio.sql puis 007_portfolio_seed_taxonomy.sql (dossier supabase/migrations).", "The portfolio tables don't exist yet. Run 006_portfolio.sql then 007_portfolio_seed_taxonomy.sql from supabase/migrations."],
   "a.pf.f.allcat": ["كل الفئات", "Toutes les catégories", "All categories"],
   "a.pf.f.allstatus": ["كل الحالات", "Tous les statuts", "All statuses"],
